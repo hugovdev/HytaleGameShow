@@ -1,0 +1,4 @@
+name: HytaleGameShow
+version: '${version}'
+main: me.hugo.hytalegameshow.HytaleGameShow
+api-version: '1.19'
