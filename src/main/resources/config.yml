@@ -1,0 +1,7 @@
+teams:
+  1:
+    name: "Blue"
+    color: "#5555FF"
+  2:
+    name: "Red"
+    color: "#FF5555"

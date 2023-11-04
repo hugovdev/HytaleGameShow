@@ -1,8 +1,9 @@
 plugins {
+    id "com.github.johnrengelman.shadow" version "8.1.1"
     id 'java'
 }
 
-group = 'me.hugo'
+group = 'me.hugo.hytalegameshow'
 version = '1.0-SNAPSHOT'
 
 repositories {
@@ -15,13 +16,25 @@ repositories {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/groups/public/"
     }
+
+    maven { url = 'https://jitpack.io' }
 }
 
 dependencies {
-compileOnly "io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT"
+
+    // Lamp Command Framework
+    implementation 'com.github.Revxrsal.Lamp:common:3.1.7'
+    implementation 'com.github.Revxrsal.Lamp:bukkit:3.1.7'
+
+    // FastBoard API
+    implementation 'fr.mrmicky:fastboard:2.0.1'
 }
 
+shadowJar { relocate 'fr.mrmicky.fastboard', 'me.hugo.fastboard' }
+
 def targetJavaVersion = 17
+
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
@@ -29,6 +42,11 @@ java {
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
     }
+}
+
+compileJava {
+    options.getCompilerArgs().add("-parameters")
+    options.forkOptions.executable("javac")
 }
 
 tasks.withType(JavaCompile).configureEach {
