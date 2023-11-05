@@ -11,14 +11,14 @@ import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.exception.CommandErrorException;
 
-import java.util.Optional;
-
 public final class HytaleGameShow extends JavaPlugin {
 
-    private TeamManager teamManager;
     private final PlayerDataManager playerDataManager = new PlayerDataManager();
 
+    private TeamManager teamManager;
+
     private static HytaleGameShow instance;
+    public static boolean IS_ENABLED = false;
 
     private BukkitCommandHandler commandHandler;
 
@@ -43,6 +43,7 @@ public final class HytaleGameShow extends JavaPlugin {
         }));
 
         commandHandler.register(new GameShowCommand());
+        commandHandler.enableAdventure();
         commandHandler.registerBrigadier();
 
         Bukkit.getPluginManager().registerEvents(new PlayerJoinLeave(playerDataManager), this);

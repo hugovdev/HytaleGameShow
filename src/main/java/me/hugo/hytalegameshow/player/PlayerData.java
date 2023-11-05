@@ -25,11 +25,7 @@ public class PlayerData {
     }
 
     public void startScoreboard(Player player) {
-        player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         this.board = new FastBoard(player);
-
-        board.updateTitle(Component.text("THANKMAS 2023", NamedTextColor.AQUA, TextDecoration.BOLD));
-
         printScoreboard();
     }
 
@@ -46,6 +42,15 @@ public class PlayerData {
     }
 
     public void printScoreboard() {
+        if (!HytaleGameShow.IS_ENABLED) return;
+
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player == null || !player.isOnline()) return;
+
+        if (this.board == null || this.board.isDeleted()) this.board = new FastBoard(player);
+
+        board.updateTitle(Component.text("THANKMAS 2023", NamedTextColor.AQUA, TextDecoration.BOLD));
+
         List<Component> lines = new ArrayList<>();
 
         lines.add(Component.text("Hytale Gameshow", NamedTextColor.GRAY));
