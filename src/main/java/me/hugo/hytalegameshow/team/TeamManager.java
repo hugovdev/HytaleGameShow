@@ -2,55 +2,60 @@ package me.hugo.hytalegameshow.team;
 
 import me.hugo.hytalegameshow.HytaleGameShow;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class TeamManager {
 
-    private final HashMap<PlayerTeam, Integer> teamPoints = new HashMap<>();
-    private final List<PlayerTeam> teams = new ArrayList<>();
+    private final Map<String, PlayerTeam> teams = new HashMap<>();
 
     public TeamManager() {
-        HytaleGameShow.getInstance().saveDefaultConfig();
+        FileConfiguration config = HytaleGameShow.getInstance().getConfig();
 
-        teams.add(readTeam("teams.1"));
-        teams.add(readTeam("teams.2"));
+        ConfigurationSection teamsSection = config.getConfigurationSection("teams");
+
+        if (teamsSection != null) {
+            teamsSection.getKeys(false).forEach(teamId -> {
+                String path = "teams." + teamId;
+
+                teams.put(teamId, createTeam(config.getString(path + ".name", "NoName"),
+                        TextColor.fromHexString(config.getString(path + ".color", "#FFFFF"))));
+            });
+        }
     }
 
-    public List<PlayerTeam> getTeams() {
-        return teams;
+    public Collection<PlayerTeam> getTeams() {
+        return teams.values();
+    }
+
+    public Collection<String> getTeamIds() {
+        return teams.keySet();
+    }
+
+    public PlayerTeam getTeamById(String teamId) {
+        return teams.get(teamId);
     }
 
     public PlayerTeam createTeam(String name, TextColor color) {
-        PlayerTeam team = new PlayerTeam(name, color);
-        teams.add(team);
-
-        return team;
+        return new PlayerTeam(name, color);
     }
 
     public int getPoints(PlayerTeam team) {
-        return teamPoints.getOrDefault(team, 0);
+        return team.getPoints();
     }
 
     public void addPoints(int points, PlayerTeam team) {
-        teamPoints.put(team, teamPoints.getOrDefault(team, 0) + points);
+        team.setPoints(team.getPoints() + points);
     }
 
     public void removePoints(int points, PlayerTeam team) {
-        teamPoints.put(team, Math.max(teamPoints.getOrDefault(team, 0) - points, 0));
+        int finalPoints = Math.max(team.getPoints() - points, 0);
+        team.setPoints(finalPoints);
     }
 
     public void resetPoints(PlayerTeam team) {
-        teamPoints.remove(team);
-    }
-
-    private PlayerTeam readTeam(String path) {
-        FileConfiguration config = HytaleGameShow.getInstance().getConfig();
-
-        return createTeam(config.getString(path + ".name", "NoName"),
-                TextColor.fromHexString(config.getString(path + ".color", "#FFFFF")));
+        team.setPoints(0);
     }
 }

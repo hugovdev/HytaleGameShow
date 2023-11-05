@@ -1,9 +1,11 @@
 package me.hugo.hytalegameshow;
 
 import me.hugo.hytalegameshow.commands.GameShowCommand;
+import me.hugo.hytalegameshow.listener.PlayerJoinLeave;
 import me.hugo.hytalegameshow.player.PlayerDataManager;
 import me.hugo.hytalegameshow.team.PlayerTeam;
 import me.hugo.hytalegameshow.team.TeamManager;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
@@ -13,7 +15,7 @@ import java.util.Optional;
 
 public final class HytaleGameShow extends JavaPlugin {
 
-    private final TeamManager teamManager = new TeamManager();
+    private TeamManager teamManager;
     private final PlayerDataManager playerDataManager = new PlayerDataManager();
 
     private static HytaleGameShow instance;
@@ -24,27 +26,26 @@ public final class HytaleGameShow extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
+        saveDefaultConfig();
+        teamManager = new TeamManager();
+
         commandHandler = BukkitCommandHandler.create(this);
 
         commandHandler.getAutoCompleter().registerParameterSuggestions(PlayerTeam.class,
-                (SuggestionProvider.of(teamManager.getTeams().stream().map(team -> team.name).toList())));
+                (SuggestionProvider.of(teamManager.getTeamIds())));
 
-        commandHandler.registerValueResolver(PlayerTeam.class, (context -> {
-            Optional<PlayerTeam> team = teamManager.getTeams().stream()
-                    .filter(currentTeam -> currentTeam.name.equalsIgnoreCase(context.pop()))
-                    .findFirst();
-
-            return team.orElse(null);
-        }));
+        commandHandler.registerValueResolver(PlayerTeam.class, (context -> teamManager.getTeamById(context.pop())));
 
         commandHandler.registerParameterValidator(PlayerTeam.class, ((value, parameter, actor) -> {
             if (value == null) {
-                throw new CommandErrorException("This map doesn't exist!");
+                throw new CommandErrorException("This team doesn't exist!");
             }
         }));
 
         commandHandler.register(new GameShowCommand());
         commandHandler.registerBrigadier();
+
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinLeave(playerDataManager), this);
     }
 
     @Override

@@ -1,7 +1,7 @@
 teams:
-  1:
-    name: "Blue"
+  blue:
+    name: "Blue Team"
     color: "#5555FF"
-  2:
-    name: "Red"
+  red:
+    name: "Red Team"
     color: "#FF5555"
